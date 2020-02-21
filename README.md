@@ -1,0 +1,1 @@
+![Rust](https://github.com/Evergreenn/RustChatApp/workflows/Rust/badge.svg)
