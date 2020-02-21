@@ -13,6 +13,7 @@ use ws::{
 
 use std::cell::Cell;
 use std::rc::Rc;
+use crate::repository::mainlib::save_post;
 
 struct Server {
     out: Sender,
@@ -62,6 +63,9 @@ impl Handler for Server {
         } else {
             Message::Text(raw_message)
         };
+
+        // message = Text("nom: message")
+        // save_post() here
 
         self.out.broadcast(message)
     }

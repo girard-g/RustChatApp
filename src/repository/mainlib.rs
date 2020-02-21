@@ -2,7 +2,7 @@ use diesel::prelude::*;
 use diesel::pg::PgConnection;
 use dotenv::dotenv;
 use std::env;
-use crate::repository::models::Post;
+use crate::repository::models::{Post, NewPost};
 
 
 pub fn create_connection() -> PgConnection {
@@ -24,4 +24,20 @@ pub fn get_five_last_posts() -> Vec<Post> {
         .expect("Error loading posts");
 
     results
+}
+
+pub fn save_post(author: &str, body: &str) -> Post {
+    use crate::repository::schema::posts;
+
+    let connection = create_connection();
+
+    let new_post = NewPost{
+        author:author,
+        body:body
+    };
+
+    diesel::insert_into(posts::table)
+        .values(&new_post)
+        .get_result(&connection)
+        .expect("Error saving new post")
 }
