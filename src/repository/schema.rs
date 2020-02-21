@@ -1,5 +1,3 @@
-use diesel::*;
-
 table! {
     posts (id) {
         id -> Int4,

@@ -1,3 +1,3 @@
+pub mod mainlib;
 pub mod schema;
 pub mod models;
-pub mod mainlib;

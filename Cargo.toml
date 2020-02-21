@@ -7,8 +7,10 @@ edition = "2018"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
+static-cond = "0.2.1"
 ws = "0.8.1"
 rocket = "0.4.1"
 diesel = { version = "1.3.0", features = ["postgres"] }
 dotenv = "0.9.0"
-static-cond = "0.2.1"
+serde_json = "1.0.48"
+serde = { version = "1.0", features = ["derive"] }

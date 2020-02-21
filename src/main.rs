@@ -1,27 +1,34 @@
 #![feature(
-    proc_macro_hygiene,
-    decl_macro,
-    register_tool,
-    register_attr,
-    rustc_private,
-    type_ascription
+proc_macro_hygiene,
+decl_macro,
+register_tool,
+register_attr,
+rustc_private,
+type_ascription
 )]
 
 #[macro_use]
-extern crate rocket;
 extern crate ws;
-extern crate diesel;
+
+
 extern crate dotenv;
+#[macro_use]
+extern crate rocket;
+#[macro_use]
+extern crate diesel;
+extern crate serde_json;
 
 use std::thread;
 
 mod repository;
-use crate::repository::mainlib::{create_connection, get_five_last_posts};
+// use crate::repository::mainlib::{create_connection, get_five_last_posts};
 
 mod route;
+
 use crate::route::{get, static_files};
 
 mod chat;
+
 use crate::chat::ws_rs;
 
 fn rocket() -> rocket::Rocket {
@@ -36,7 +43,6 @@ fn rocket() -> rocket::Rocket {
 }
 
 fn main() {
-
     thread::Builder::new()
         .name("Thread for chat".into())
         .spawn(|| {
@@ -45,5 +51,4 @@ fn main() {
         .unwrap();
 
     rocket().launch();
-
 }

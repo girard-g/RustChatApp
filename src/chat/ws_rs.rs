@@ -16,11 +16,11 @@ use std::rc::Rc;
 
 struct Server {
     out: Sender,
-    count: Rc<Cell<u32>>
+    count: Rc<Cell<u32>>,
 }
 
 impl Handler for Server {
-    fn on_request(&mut self, request:&Request) -> Result<Response> {
+    fn on_request(&mut self, request: &Request) -> Result<Response> {
         match request.resource() {
             "/ws" => {
                 println!("Browser Request from {:?}", request.origin().unwrap().unwrap());
@@ -39,15 +39,14 @@ impl Handler for Server {
         let number_of_connection = self.count.get();
 
         if number_of_connection > 5 {
-            self.out.send(format!("Too may connection: {}", &number_of_connection));
+            self.out.send(format!("Too may connection: {}", &number_of_connection))?;
             format!("{} entered and the number of open connection is {}", handshake.peer_addr.unwrap(), &number_of_connection);
-            self.out.close_with_reason(CloseCode::Policy, "Too many connections")
-        }else{
+            self.out.close_with_reason(CloseCode::Policy, "Too many connections")?
+        } else {
             let open_message = format!("{} entered and the number of open connection is {}", handshake.peer_addr.unwrap(), &number_of_connection);
             println!("{}", &open_message);
-            self.out.broadcast(open_message);
-            Ok(())
-        };
+            self.out.broadcast(open_message)?;
+        }
 
         Ok(())
     }
@@ -65,7 +64,6 @@ impl Handler for Server {
         };
 
         self.out.broadcast(message)
-
     }
 
     fn on_close(&mut self, code: CloseCode, reason: &str) {
@@ -76,11 +74,11 @@ impl Handler for Server {
             _ => println!("The client encountered an error: {}", reason),
         }
 
-        self.count.set(self.count.get() -1);
+        self.count.set(self.count.get() - 1);
     }
 
     fn on_error(&mut self, err: Error) {
-         println!("The server encountered an error: {:?}", err);
+        println!("The server encountered an error: {:?}", err);
     }
 }
 
@@ -94,5 +92,5 @@ pub fn websocket() -> () {
     // or decrement the count between handlers.
 
     let count = Rc::new(Cell::new(0));
-    listen("127.0.0.1:7777", |out| { Server { out, count: count.clone(), } }).unwrap()
+    listen("127.0.0.1:7777", |out| { Server { out, count: count.clone() } }).unwrap()
 }
