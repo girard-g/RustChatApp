@@ -1,74 +1,90 @@
 <!doctype html>
-<html>
+<html lang="en">
 
 <head>
   <title>Rust Chat App </title>
   <link rel=icon href="https://www.steadylearner.com/static/images/code/Rust_b.png" />
 
-  <link rel="stylesheet" href="/static/css/normalize.css" />
-  <link rel="stylesheet" href="/static/css/steadylearner.css" />
+
+  <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css" integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous">
   <link rel="stylesheet" href="/static/chat/index.css" />
+  <link rel="stylesheet" href="/static/css/custom.css" />
 </head>
 
 <body>
 
-
-
-  <section>
-    <nav id="nav" class="nav flex center">
-      <span class="white right-auto" >Rust Chat App</span>
-
-      <!-- Trigger/Open The Modal -->
-      <span class="center-auto white exit cursor-pointer hover transition" id="myBtn">My Name</span>
-
-      <!-- The Modal -->
-      <div id="myModal" class="modal">
-
-        <!-- Modal content -->
-        <div class="modal-content">
-          <span class="close">&times;</span>
-          <label for="fname">First name:</label>
-          <input type="text" id="fname" name="fname"><br><br>
-          <input type="submit" value="Submit" id="submitName">
-        </div>
-
-      </div>
-
-      <span
-        id="exit"
-        class="margin-right-one white cursor-pointer hover transition"
-      >
-        Exit
-      </span>
-    </nav>
-    <ul
-      id="messages"
-    >
-      <!-- JavaScript will make <li> messages here -->
+<nav class="navbar navbar-expand-lg navbar-light bg-light">
+  <a class="navbar-brand" href="#">Navbar w/ text</a>
+  <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarText" aria-controls="navbarText" aria-expanded="false" aria-label="Toggle navigation">
+    <span class="navbar-toggler-icon"></span>
+  </button>
+  <div class="collapse navbar-collapse" id="navbarText">
+    <ul class="navbar-nav mr-auto">
+      <li class="nav-item active">
+        <a class="nav-link" href="#">Home <span class="sr-only">(current)</span></a>
+      </li>
     </ul>
-    <form id="form" class="chat-input flex center">
-      <img
-        id="code"
-        class="flex center rust-icon hover cursor-pointer transition-half"
-        title="Click this to use markdown or not"
-        src="/static/images/Rust.svg"
-      />
-      <input
-        id="msg"
-        type="text"
-        placeholder="Type here to start to talk with others."
-        autocomplete="off"
-      >
-      <button class="blue cursor-pointer" >Send</button>
-      <button
-        id="clear"
-        type="button"
-        class="margin-left-one red-white cursor-pointer"
-      >
-        Clear
-      </button>
+    <span class="navbar-text cursor-pointer hover transition"  id="exit">
+      Exit
+    </span>
+  </div>
+</nav>
+
+<div class="inbox_msg">
+  <div class="inbox_people">
+    <div class="headind_srch">
+      <div class="recent_heading">
+        <h4>Recent</h4>
+      </div>
+      <div class="srch_bar">
+        <div class="stylish-input-group">
+          <input type="text" class="search-bar"  placeholder="Search" >
+          <span class="input-group-addon">
+                <button type="button"> <i class="fa fa-search" aria-hidden="true"></i> </button>
+                </span> </div>
+      </div>
+    </div>
+    <div class="inbox_chat">
+      <div class="chat_list active_chat">
+        <div class="chat_people">
+          <div class="chat_img"> <img src="https://ptetutorials.com/images/user-profile.png" alt="sunil"> </div>
+          <div class="chat_ib">
+            <h5>Global Chat <span class="chat_date">Dec 25</span></h5>
+            <p>Test Global chat room</p>
+          </div>
+        </div>
+      </div>
+<!--      <div class="chat_list">-->
+<!--        <div class="chat_people">-->
+<!--          <div class="chat_img"> <img src="https://ptetutorials.com/images/user-profile.png" alt="sunil"> </div>-->
+<!--          <div class="chat_ib">-->
+<!--            <h5>Sunil Rajput <span class="chat_date">Dec 25</span></h5>-->
+<!--            <p>Test, which is a new approach to have all solutions-->
+<!--              astrology under one roof.</p>-->
+<!--          </div>-->
+<!--        </div>-->
+<!--      </div>-->
+    </div>
+  </div>
+<div class="mesgs">
+  <div class="msg_history" id="messages">
+
+  </div>
+  <div class="type_msg">
+    <form id="form" autocomplete="off">
+      <div class="input_msg_write">
+        <input type="text" id="msg" class="write_msg" placeholder="Type a message" />
+        <button class="msg_send_btn" type="submit"><i class="fa fa-paper-plane-o" aria-hidden="true"></i></button>
+      </div>
     </form>
-  </section>
+  </div>
+</div>
+
+
+  <script src="https://code.jquery.com/jquery-3.4.1.slim.min.js" integrity="sha384-J6qa4849blE2+poT4WnyKhv5vZF5SrPo0iEjwBvKU7imGFAV0wwj1yYfoRSJoZ+n" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js" integrity="sha384-Q6E9RHvbIyZFJoft+2mJbHaEWldlvI9IOYy5n3zV9zzTtmI3UksdQRVvoxMfooAo" crossorigin="anonymous"></script>
+  <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/js/bootstrap.min.js" integrity="sha384-wfSDF2E50Y2D1uUdj0O3uMBJnjuUD4Ih7YwaYd1iqfktj0Uod8GCExl3Og8ifwB6" crossorigin="anonymous"></script>
+
   <script
     src="/static/chat/bundle.js"
     type="text/javascript"

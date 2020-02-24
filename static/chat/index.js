@@ -6,12 +6,11 @@ const emoji = require("node-emoji");
 const hasEmoji = require("has-emoji");
 
 const socket = new WebSocket("ws://127.0.0.1:7777/ws");
-
 // Get the modal
-let modal = document.getElementById("myModal");
+// let modal = document.getElementById("myModal");
 
 // Get the button that opens the modal
-let btn = document.getElementById("myBtn");
+// let btn = document.getElementById("myBtn");
 
 // Get the <span> element that closes the modal
 let span = document.getElementsByClassName("close")[0];
@@ -33,34 +32,46 @@ function createAdminMessage(content){
 
 function createHistoryMessage(content) {
   const messages = document.getElementById("messages");
-  const li = document.createElement("li");
-  const p = document.createElement("p");
-  p.className = "grey";
-  p.textContent = content;
-  li.append(p);
-  messages.append(li);
+
+  const strHtml = '<div class="incoming_msg"><div class="incoming_msg_img"> <img src="https://ptetutorials.com/images/user-profile.png" alt="sunil"> </div> <div class="received_msg"><div class="received_withd_msg">'+content+'<span class="time_date"> 11:01 AM    |    June 9</span></div></div></div>';
+  let temp = document.createElement('div');
+  temp.innerHTML = strHtml;
+  temp = temp.firstChild;
+
+  messages.appendChild(temp);
 
 }
-// When the user clicks on the button, open the modal
-btn.onclick = function() {
-  modal.style.display = "block";
-};
-// When the user clicks on <span> (x), close the modal
-span.onclick = function() {
-  modal.style.display = "none";
-};
-// When the user clicks anywhere outside of the modal, close it
-window.onclick = function(event) {
-  if (event.target === modal) {
-    modal.style.display = "none";
-  }
-};
-submitName.onclick = function() {
-  userName = document.getElementById('fname').value;
-  modal.style.display = "none";
-  createAdminMessage(`Name changed from ${userId} to ${userName}`);
 
-};// 1. custom function to log time and remove messages(remove list under ul)
+function createMessage(content, direction){
+  const messages = document.getElementById("messages");
+
+  let strHtml = "";
+  if(direction === "outgoing"){
+
+    strHtml = '<div id="writtenmsg" class="outgoing_msg"><div class="sent_msg"><p>'+content+'</p><span class="time_date"> 11:01 AM    |    Today</span></div></div>'
+  }else{
+    strHtml = '<div id="writtenmsg" class="incoming_msg"><div class="incoming_msg_img"> <img src="https://ptetutorials.com/images/user-profile.png" alt="sunil"> </div> <div class="received_msg"><div class="received_withd_msg">'+content+'<span class="time_date"> 11:01 AM    |    June 9</span></div></div></div>';
+  }
+
+  let temp = document.createElement('div');
+  temp.innerHTML = strHtml;
+  temp = temp.firstChild;
+
+  messages.appendChild(temp);
+
+  const scrolled = false;
+    if(!scrolled){
+      let element = document.getElementById("messages");
+      element.scrollTop = element.scrollHeight;
+    }
+}
+
+// submitName.onclick = function() {
+//   userName = document.getElementById('fname').value;
+//   modal.style.display = "none";
+//   createAdminMessage(`Name changed from ${userId} to ${userName}`);
+//
+// };// 1. custom function to log time and remove messages(remove list under ul)
 
 function getDateTime() {
   const today = new Date();
@@ -76,7 +87,6 @@ function removeMessages() {
   }
 }
 
-// 2. state for each client(user)
 
 let open = false;
 
@@ -99,10 +109,7 @@ var HttpClient = function() {
 };
 
 
-// 3. Log conosle message when socket is open
-
 socket.addEventListener('open', function (event) {
-  console.log("Start to chat");
 
   let client = new HttpClient();
   client.get('http://localhost:8000/posts', function(response) {
@@ -118,19 +125,13 @@ socket.addEventListener('open', function (event) {
 
 });
 
-// 4. Clear the message, eqaul to !clear later
 
-const clear = document.getElementById("clear");
-clear.onclick = removeMessages;
-
-// 5. Exit the chat, eqaul to !exit later
-
+//
 const exit = document.getElementById("exit");
 exit.onclick = function () {
   socket.close();
 };
 
-// 6. id - form, directly relevant to who type message
 
 const form = document.getElementById("form");
 
@@ -172,7 +173,6 @@ form.onsubmit = function (event) {
   setTimeout(() => window.scrollTo({ top: window.innerHeight, behavior: "auto" }), 10);
 };
 
-// 7. From Server(User, Other user or Server)
 
 socket.onmessage = function (event) {
   // To save what server sent to localStorage, use database in production
@@ -204,34 +204,26 @@ socket.onmessage = function (event) {
     let separate = event.data.split(" ");
     userId = separate[0];
 
-    console.log(separate);
-
-    const messages = document.getElementById("messages");
-    const li = document.createElement("li");
-    const p = document.createElement("p");
-
     let totalNumber = separate[separate.length - 1];
-    console.log(totalNumber);
     if (totalNumber > 5 ) {
-      p.textContent = `${totalNumber} is maximum user allowed. Wait for others exit the chat.`;
-      p.className = "red-white";
-      li.append(p);
-      messages.append(li);
+      createAdminMessage(`${totalNumber} is maximum user allowed. Wait for others exit the chat.`);
       socket.close();
       return;
     }
 
     open = true;
 
-    p.textContent = `Your id is ${userId} and "You" will be used in this page instead | https://www.webfx.com/tools/emoji-cheat-sheet`;
-    p.className = "blue";
-    li.append(p);
-    messages.append(li);
+    createAdminMessage(`Your id is ${userId} and "You" will be used in this page instead | https://www.webfx.com/tools/emoji-cheat-sheet`);
 
   } else {
     let fromServer = event.data;
     const beforePayload = fromServer.split(" ")[0];
     const authorOfMessage = beforePayload.slice(0, beforePayload.length - 1); // to get the id part of the message
+
+
+    // console.log(fromServer);
+    // console.log(beforePayload);
+    // console.log(authorOfMessage);
 
     // if (authorOfMessage !== userId && fromServer.includes(`!exclude ${userId}`)) {
     if (fromServer.includes(`!exclude ${userId}`)) {
@@ -239,39 +231,29 @@ socket.onmessage = function (event) {
       return;
     }
 
-    const messages = document.getElementById("messages");
-    const li = document.createElement("li");
+    let direction = "incomming";
 
     if (authorOfMessage === userId || authorOfMessage === userName) {
-      li.className = "red-white";
-      fromServer = fromServer.replace(userId, "You");
-      fromServer = fromServer.replace(authorOfMessage, "You");
+      fromServer = fromServer.replace(userId, "");
+      fromServer = fromServer.replace(authorOfMessage, "");
+
+      direction = "outgoing";
     }
 
     const includeEmoji = hasEmoji(emoji.emojify(fromServer));
     afterEmoji = includeEmoji ? emoji.emojify(fromServer) : fromServer;
     // I ❤️ Rust, I :heart: Rust
 
-    const p = document.createElement("p");
-    p.append(afterEmoji);
-    li.append(p);
-    messages.append(li);
+    createMessage(afterEmoji, direction);
+
   }
 };
 
 // verify it work
 socket.onclose = function (event) {
-  const closeMessage = event.data === undefined ? "Server, You or another user closed the connection." : "WebSocket is closed now."
-  const messages = document.getElementById("messages");
-
-  const li = document.createElement("li");
-  li.append(closeMessage);
-  li.className = "blue";
-  messages.append(li);
+  const closeMessage = event.data === undefined ? "Server, You or another user closed the connection." : "WebSocket is closed now.";
+  createAdminMessage(closeMessage);
 
   localStorage.setItem("userInputs", `[${userInputs}]`);
   localStorage.setItem("server", `[${server}]`);
 };
-
-
-
