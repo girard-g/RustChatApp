@@ -3,6 +3,7 @@ use diesel::pg::PgConnection;
 use dotenv::dotenv;
 use std::env;
 use crate::repository::models::{Post, NewPost};
+use std::time::SystemTime;
 
 
 pub fn create_connection() -> PgConnection {
@@ -19,7 +20,8 @@ pub fn get_five_last_posts() -> Vec<Post> {
 
     let connection = create_connection();
 
-    let results = posts.limit(5)
+    let results = posts.order(published_at.desc())
+        .limit(5)
         .load::<Post>(&connection)
         .expect("Error loading posts");
 
@@ -32,8 +34,9 @@ pub fn save_post(author: &str, body: &str) -> Post {
     let connection = create_connection();
 
     let new_post = NewPost{
-        author:author,
-        body:body
+        author,
+        body,
+        published_at:SystemTime::now()
     };
 
     diesel::insert_into(posts::table)

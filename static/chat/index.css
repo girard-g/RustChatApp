@@ -8,6 +8,10 @@
     font: 16px Helvetica, Arial;
   }
 
+  .grey{
+    color:lightgrey;
+  }
+
   .nav {
     top: 0;
     background: #000;

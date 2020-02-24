@@ -15,4 +15,5 @@ pub struct Post {
 pub struct NewPost<'a> {
     pub author: &'a str,
     pub body: &'a str,
+    pub published_at: SystemTime,
 }

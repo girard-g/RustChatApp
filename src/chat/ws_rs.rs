@@ -21,20 +21,6 @@ struct Server {
 }
 
 impl Handler for Server {
-    fn on_request(&mut self, request: &Request) -> Result<Response> {
-        match request.resource() {
-            "/ws" => {
-                println!("Browser Request from {:?}", request.origin().unwrap().unwrap());
-                println!("Client found is {:?}", request.client_addr().unwrap());
-
-                let response = Response::from_request(&request);
-
-                response
-            }
-            _ => Ok(Response::new(404, "Not Found", b"404 - Not Found".to_vec())),
-        }
-    }
-
     fn on_open(&mut self, handshake: Handshake) -> Result<()> {
         self.count.set(self.count.get() + 1);
         let number_of_connection = self.count.get();
@@ -64,8 +50,7 @@ impl Handler for Server {
             Message::Text(raw_message)
         };
 
-        // message = Text("nom: message")
-        // save_post() here
+        save_post("History", &message.to_string());
 
         self.out.broadcast(message)
     }
@@ -83,6 +68,21 @@ impl Handler for Server {
 
     fn on_error(&mut self, err: Error) {
         println!("The server encountered an error: {:?}", err);
+    }
+
+    fn on_request(&mut self, request: &Request) -> Result<Response> {
+        match request.resource() {
+            "/ws" => {
+                println!("Browser Request from {:?}", request.origin().unwrap().unwrap());
+                println!("Client found is {:?}", request.client_addr().unwrap());
+
+                let response = Response::from_request(&request);
+
+                response
+            }
+
+            _ => Ok(Response::new(404, "Not Found", b"404 - Not Found".to_vec())),
+        }
     }
 }
 

@@ -8,7 +8,6 @@ const hasEmoji = require("has-emoji");
 
 const socket = new WebSocket("ws://127.0.0.1:7777/ws");
 
-
 // Get the modal
 let modal = document.getElementById("myModal");
 
@@ -21,6 +20,30 @@ let span = document.getElementsByClassName("close")[0];
 let submitName = document.getElementById("submitName");
 
 let userName = '';
+
+function createAdminMessage(content){
+  const messages = document.getElementById("messages");
+  const li = document.createElement("li");
+  const p = document.createElement("p");
+  p.className = "blue";
+  p.textContent = content;
+  li.append(p);
+  messages.append(li);
+}
+
+
+function createHistoryMessage(content) {
+  const messages = document.getElementById("messages");
+  const li = document.createElement("li");
+  const p = document.createElement("p");
+  p.className = "grey";
+  p.textContent = content;
+  li.append(p);
+  messages.append(li);
+
+}
+
+
 // When the user clicks on the button, open the modal
 btn.onclick = function() {
   modal.style.display = "block";
@@ -38,14 +61,8 @@ window.onclick = function(event) {
 submitName.onclick = function() {
   userName = document.getElementById('fname').value;
   modal.style.display = "none";
-  const messages = document.getElementById("messages");
-  const li = document.createElement("li");
-  const p = document.createElement("p");
+  createAdminMessage(`Name changed from ${userId} to ${userName}`);
 
-  p.textContent = `Name changed from ${userId} to ${userName}`;
-  p.className = "blue";
-  li.append(p);
-  messages.append(li);
 };// 1. custom function to log time and remove messages(remove list under ul)
 
 function getDateTime() {
@@ -71,11 +88,37 @@ let userInputs = [];
 
 let server = [];
 
+var HttpClient = function() {
+  this.get = function(aUrl, aCallback) {
+    let anHttpRequest = new XMLHttpRequest();
+    anHttpRequest.onreadystatechange = function() {
+      if (anHttpRequest.readyState === 4 && anHttpRequest.status === 200)
+        aCallback(anHttpRequest.responseText);
+    };
+
+    anHttpRequest.open( "GET", aUrl, true );
+    anHttpRequest.send( null );
+  }
+};
+
+
 // 3. Log conosle message when socket is open
 
 socket.addEventListener('open', function (event) {
-  // socket.send('Start to chat');
   console.log("Start to chat");
+
+  let client = new HttpClient();
+  client.get('http://localhost:8000/posts', function(response) {
+
+    if (response !== "") {
+      createAdminMessage("last 5 messages:");
+      JSON.parse(response).forEach(function (item) {
+        createHistoryMessage(item.author+": "+item.body);
+      });
+    }
+
+  });
+
 });
 
 // 4. Clear the message, eqaul to !clear later

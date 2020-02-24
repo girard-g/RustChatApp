@@ -14,9 +14,7 @@ pub fn chat() -> io::Result<NamedFile> {
 }
 
 #[get("/posts")]
-pub fn lol() -> Json<String> {
+pub fn posts() -> Json<String> {
     let posts = get_five_last_posts();
     return Json(serde_json::to_string(&posts).unwrap());
 }
-
-

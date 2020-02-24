@@ -36,7 +36,7 @@ fn rocket() -> rocket::Rocket {
         static_files::file,
         get::index,
         get::chat,
-        get::lol,
+        get::posts,
     ];
 
     rocket::ignite().mount("/", rocket_routes)
