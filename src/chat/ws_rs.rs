@@ -14,11 +14,14 @@ use ws::{
 use std::cell::Cell;
 use std::rc::Rc;
 use crate::repository::mainlib::save_post;
+use std::time::SystemTime;
+use crate::chat::models::Messages;
 
 struct Server {
     out: Sender,
     count: Rc<Cell<u32>>,
 }
+
 
 impl Handler for Server {
     fn on_open(&mut self, handshake: Handshake) -> Result<()> {
@@ -32,7 +35,17 @@ impl Handler for Server {
         } else {
             let open_message = format!("{} entered and the number of open connection is {}", handshake.peer_addr.unwrap(), &number_of_connection);
             println!("{}", &open_message);
-            self.out.broadcast(open_message)?;
+
+            let response = Messages{
+                message: open_message,
+                from: "Admin".into(),
+                date: Some(SystemTime::now()),
+                room_date:Some(SystemTime::now())
+            };
+
+            let stringify = serde_json::to_string(&response).unwrap();
+
+            self.out.broadcast(stringify)?;
         }
 
         Ok(())
@@ -42,17 +55,22 @@ impl Handler for Server {
         let raw_message = message.into_text()?;
         println!("The message from the client is {:#?}", &raw_message);
 
-        let message = if raw_message.contains("!warn") {
-            let warn_message = "One of the clients sent warning to the server.";
-            println!("{}", &warn_message);
-            Message::Text("There was warning from another user.".to_string())
-        } else {
-            Message::Text(raw_message)
-        };
+        // let message = if raw_message.contains("!warn") {
+        //     let warn_message = "One of the clients sent warning to the server.";
+        //     println!("{}", &warn_message);
+        //     Message::Text("There was warning from another user.".to_string())
+        // } else {
+        //     Message::Text(raw_message)
+        // };
 
-        save_post("History", &message.to_string());
+        let mut msg : Messages = serde_json::from_str(&raw_message).unwrap();
 
-        self.out.broadcast(message)
+        msg.date = Some(SystemTime::now());
+        save_post(&msg);
+
+        let fnreturn =serde_json::to_string(&msg).unwrap();
+
+        self.out.broadcast(fnreturn)
     }
 
     fn on_close(&mut self, code: CloseCode, reason: &str) {

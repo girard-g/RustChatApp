@@ -4,6 +4,7 @@ use dotenv::dotenv;
 use std::env;
 use crate::repository::models::{Post, NewPost};
 use std::time::SystemTime;
+use crate::chat::models::Messages;
 
 
 pub fn create_connection() -> PgConnection {
@@ -28,14 +29,14 @@ pub fn get_five_last_posts() -> Vec<Post> {
     results
 }
 
-pub fn save_post(author: &str, body: &str) -> Post {
+pub fn save_post(message :&Messages) -> Post {
     use crate::repository::schema::posts;
 
     let connection = create_connection();
 
     let new_post = NewPost{
-        author,
-        body,
+        author: message.from.as_str(),
+        body: message.message.as_str(),
         published_at:SystemTime::now()
     };
 
