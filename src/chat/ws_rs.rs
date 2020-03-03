@@ -32,6 +32,10 @@ impl Handler for Server {
             self.out.send(format!("Too may connection: {}", &number_of_connection))?;
             format!("{} entered and the number of open connection is {}", handshake.peer_addr.unwrap(), &number_of_connection);
             self.out.close_with_reason(CloseCode::Policy, "Too many connections")?
+        }else if number_of_connection < 1 {
+            self.out.send(format!("Nobody is in room, closing: {} connections", &number_of_connection))?;
+            format!("the number of open connection is {}. Closing", &number_of_connection);
+            self.out.close_with_reason(CloseCode::Policy, "Nobody is in room")?
         } else {
             let open_message = format!("{} entered and the number of open connection is {}", handshake.peer_addr.unwrap(), &number_of_connection);
             println!("{}", &open_message);
@@ -104,9 +108,9 @@ impl Handler for Server {
     }
 }
 
-pub fn websocket() -> () {
-    println!("Web Socket Server is ready at ws://127.0.0.1:7777/ws");
-    println!("Server is ready at http://127.0.0.1:7777/");
+pub fn websocket(url_socket: String) -> () {
+    println!("Web Socket Server is ready at ws://{}/ws", url_socket);
+    println!("Server is ready at http://{}", url_socket);
 
     // Rc is a reference-counted box for sharing the count between handlers
     // since each handler needs to own its contents.
@@ -114,5 +118,5 @@ pub fn websocket() -> () {
     // or decrement the count between handlers.
 
     let count = Rc::new(Cell::new(0));
-    listen("127.0.0.1:7777", |out| { Server { out, count: count.clone() } }).unwrap()
+    listen(url_socket, |out| { Server { out, count: count.clone() } }).unwrap()
 }

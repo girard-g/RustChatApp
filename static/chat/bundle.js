@@ -5,21 +5,9 @@
 
 const emoji = require("node-emoji");
 const hasEmoji = require("has-emoji");
-
 const socket = new WebSocket("ws://127.0.0.1:7777/ws");
-// Get the modal
-// let modal = document.getElementById("myModal");
-
-// Get the button that opens the modal
-// let btn = document.getElementById("myBtn");
-
-// Get the <span> element that closes the modal
-let span = document.getElementsByClassName("close")[0];
-
-let submitName = document.getElementById("submitName");
 
 let userName = '';
-
 
 function dateFormat(datetime){
     const months_arr = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
@@ -89,20 +77,6 @@ function createMessage(content, direction, userName, date){
     }
 }
 
-// submitName.onclick = function() {
-//   userName = document.getElementById('fname').value;
-//   modal.style.display = "none";
-//   createAdminMessage(`Name changed from ${userId} to ${userName}`);
-//
-// };// 1. custom function to log time and remove messages(remove list under ul)
-
-function getDateTime() {
-    const today = new Date();
-    const date = today.getFullYear() + '-' + (today.getMonth() + 1) + '-' + today.getDate();
-    const time = today.getHours() + ":" + today.getMinutes() + ":" + today.getSeconds();
-    return date + ' ' + time;
-}
-
 function removeMessages() {
     const messages = document.getElementById("messages");
     while (messages.firstChild) {
@@ -110,13 +84,10 @@ function removeMessages() {
     }
 }
 
-
 let open = false;
 
 let userId = "";
 let userInputs = [];
-
-let server = [];
 
 var HttpClient = function() {
     this.get = function(aUrl, aCallback) {
@@ -127,6 +98,17 @@ var HttpClient = function() {
         };
 
         anHttpRequest.open( "GET", aUrl, true );
+        anHttpRequest.send( null );
+    };
+
+    this.post = function(aUrl, aCallback) {
+        let anHttpRequest = new XMLHttpRequest();
+        anHttpRequest.onreadystatechange = function() {
+            if (anHttpRequest.readyState === 4 && (anHttpRequest.status === 200 || anHttpRequest.status === 201))
+                aCallback(anHttpRequest.responseText);
+        };
+
+        anHttpRequest.open( "POST", aUrl, true );
         anHttpRequest.send( null );
     }
 };
@@ -149,13 +131,10 @@ socket.addEventListener('open', function () {
 
 });
 
-
-
 const exit = document.getElementById("exit");
 exit.onclick = function () {
     socket.close();
 };
-
 
 const form = document.getElementById("form");
 
@@ -209,6 +188,13 @@ socket.onmessage = function (event) {
         socket.close();
         return;
     }
+
+    if (event.data.includes("!newroom")) {
+        createSocket();
+        return;
+    }
+
+
 
     if (event.data.includes("!x-opacity")) {
         const messages = document.getElementById("messages");
@@ -266,8 +252,15 @@ socket.onmessage = function (event) {
 socket.onclose = function (event) {
     const closeMessage = event.data === undefined ? "Server, You or another user closed the connection." : "WebSocket is closed now.";
     createAdminMessage(closeMessage);
-
 };
+
+function createSocket() {
+    let client = new HttpClient();
+    client.post('http://localhost:8000/create-ws', function(response) {
+
+
+    });
+}
 
 },{"has-emoji":3,"node-emoji":5}],2:[function(require,module,exports){
 "use strict";

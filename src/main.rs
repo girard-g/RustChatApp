@@ -31,12 +31,15 @@ mod chat;
 
 use crate::chat::ws_rs;
 
+mod services;
+
 fn rocket() -> rocket::Rocket {
     let rocket_routes = routes![
         static_files::file,
         get::index,
         get::chat,
         get::posts,
+        get::create_ws
     ];
 
     rocket::ignite().mount("/", rocket_routes)
@@ -46,7 +49,7 @@ fn main() {
     thread::Builder::new()
         .name("Thread for chat".into())
         .spawn(|| {
-            ws_rs::websocket();
+            ws_rs::websocket("127.0.0.1:7777".into());
         })
         .unwrap();
 

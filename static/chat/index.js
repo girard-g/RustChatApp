@@ -98,6 +98,17 @@ var HttpClient = function() {
 
         anHttpRequest.open( "GET", aUrl, true );
         anHttpRequest.send( null );
+    };
+
+    this.post = function(aUrl, aCallback) {
+        let anHttpRequest = new XMLHttpRequest();
+        anHttpRequest.onreadystatechange = function() {
+            if (anHttpRequest.readyState === 4 && (anHttpRequest.status === 200 || anHttpRequest.status === 201))
+                aCallback(anHttpRequest.responseText);
+        };
+
+        anHttpRequest.open( "POST", aUrl, true );
+        anHttpRequest.send( null );
     }
 };
 
@@ -177,6 +188,13 @@ socket.onmessage = function (event) {
         return;
     }
 
+    if (event.data.includes("!newroom")) {
+        createSocket();
+        return;
+    }
+
+
+
     if (event.data.includes("!x-opacity")) {
         const messages = document.getElementById("messages");
         if (messages.className === "x-opacity") { messages.className = ""; } else { messages.className = "x-opacity" }
@@ -234,3 +252,9 @@ socket.onclose = function (event) {
     const closeMessage = event.data === undefined ? "Server, You or another user closed the connection." : "WebSocket is closed now.";
     createAdminMessage(closeMessage);
 };
+
+function createSocket() {
+    let client = new HttpClient();
+    client.post('http://localhost:8000/create-ws', function(response) {
+    });
+}
