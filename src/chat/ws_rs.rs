@@ -15,7 +15,7 @@ use std::cell::Cell;
 use std::rc::Rc;
 use crate::repository::mainlib::save_post;
 use std::time::SystemTime;
-use crate::chat::models::Messages;
+use crate::chat::models::{Messages, SocketDataType};
 
 struct Server {
     out: Sender,
@@ -108,9 +108,9 @@ impl Handler for Server {
     }
 }
 
-pub fn websocket(url_socket: String) -> () {
-    println!("Web Socket Server is ready at ws://{}/ws", url_socket);
-    println!("Server is ready at http://{}", url_socket);
+pub fn websocket(socket: SocketDataType) -> () {
+    println!("Web Socket Server is ready at ws://{}/ws", socket.url);
+    println!("Server is ready at http://{}", socket.url);
 
     // Rc is a reference-counted box for sharing the count between handlers
     // since each handler needs to own its contents.
@@ -118,5 +118,5 @@ pub fn websocket(url_socket: String) -> () {
     // or decrement the count between handlers.
 
     let count = Rc::new(Cell::new(0));
-    listen(url_socket, |out| { Server { out, count: count.clone() } }).unwrap()
+    listen(socket.url, |out| { Server { out, count: count.clone() } }).unwrap()
 }

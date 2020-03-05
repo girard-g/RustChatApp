@@ -9,3 +9,7 @@ pub struct Messages {
     pub date: Option<SystemTime>,
     pub room_date: Option<SystemTime>
 }
+
+pub struct SocketDataType {
+    pub url: String
+}

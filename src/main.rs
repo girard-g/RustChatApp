@@ -29,7 +29,7 @@ use crate::route::{get, static_files};
 
 mod chat;
 
-use crate::chat::ws_rs;
+use crate::chat::{ws_rs, models};
 
 mod services;
 
@@ -46,10 +46,15 @@ fn rocket() -> rocket::Rocket {
 }
 
 fn main() {
+
+    let socket = models::SocketDataType{
+        url: "127.0.0.1:7777".into()
+    };
+
     thread::Builder::new()
         .name("Thread for chat".into())
         .spawn(|| {
-            ws_rs::websocket("127.0.0.1:7777".into());
+            ws_rs::websocket(socket);
         })
         .unwrap();
 

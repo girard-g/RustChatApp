@@ -5,7 +5,51 @@
 
 const emoji = require("node-emoji");
 const hasEmoji = require("has-emoji");
-const socket = new WebSocket("ws://127.0.0.1:7777/ws");
+// var maClass = require("./User.js");
+// const Room = require("./Room.js");
+
+class User {
+    constructor(id) {
+        this.id = id;
+        this.room = null;
+    }
+    connectToRoom(room){
+        this.room = new Room(room);
+    }
+
+    getUserId(){
+        return this.id
+    }
+
+}
+
+class Room {
+    constructor(SocketID) {
+        this.socket = new WebSocket(SocketID);
+    }
+    socketOpen(aCallback) {
+        this.socket.addEventListener('open', aCallback)
+    };
+    socketClose() {
+        this.socket.close();
+    };
+    send(message) {
+        this.socket.send(JSON.stringify(message));
+    };
+    socketOnMessage(aCallback) {
+        this.socket.onmessage = aCallback
+    };
+    socketOnClose(aCallback) {
+        this.socket.onclose = aCallback
+    };
+}
+
+// const lol = new User("ws://127.0.0.1:7777/ws");
+let uniqueId = Math.random().toString(36).substring(2) + Date.now().toString(36);
+const user = new User(uniqueId);
+user.connectToRoom("ws://127.0.0.1:7777/ws");
+
+// const socket = new WebSocket("ws://127.0.0.1:7777/ws");
 
 let userName = '';
 
@@ -89,7 +133,7 @@ let open = false;
 let userId = "";
 let userInputs = [];
 
-var HttpClient = function() {
+const HttpClient = function() {
     this.get = function(aUrl, aCallback) {
         let anHttpRequest = new XMLHttpRequest();
         anHttpRequest.onreadystatechange = function() {
@@ -114,8 +158,7 @@ var HttpClient = function() {
 };
 
 
-socket.addEventListener('open', function () {
-
+user.room.socketOpen(function () {
     let client = new HttpClient();
     client.get('http://localhost:8000/posts', function(response) {
 
@@ -133,7 +176,7 @@ socket.addEventListener('open', function () {
 
 const exit = document.getElementById("exit");
 exit.onclick = function () {
-    socket.close();
+    user.room.socketClose();
 };
 
 const form = document.getElementById("form");
@@ -153,7 +196,7 @@ form.onsubmit = function (event) {
     }
 
     if (input.value === "!exit") {
-        socket.close();
+        user.room.socketClose();
         return;
     }
 
@@ -164,16 +207,17 @@ form.onsubmit = function (event) {
     if (userName) {
         message.from = userName;
     }else{
-        message.from = userId;
+        message.from = user.getUserId();
     }
 
-    socket.send(JSON.stringify(message));
+    user.room.send(message);
     input.value = "";
+    console.log(user);
     setTimeout(() => window.scrollTo({ top: window.innerHeight, behavior: "auto" }), 10);
 };
 
 
-socket.onmessage = function (event) {
+user.room.socketOnMessage(function (event) {
 
     if (userInputs[userInputs.length - 1] === "!warn") {
         alert("You sent warning to the other users");
@@ -185,7 +229,7 @@ socket.onmessage = function (event) {
     }
 
     if (event.data.includes("!exitall")) {
-        socket.close();
+        user.room.socketClose();
         return;
     }
 
@@ -193,8 +237,6 @@ socket.onmessage = function (event) {
         createSocket();
         return;
     }
-
-
 
     if (event.data.includes("!x-opacity")) {
         const messages = document.getElementById("messages");
@@ -211,27 +253,34 @@ socket.onmessage = function (event) {
 
         if (totalNumber > 5 ) {
             createAdminMessage(`${totalNumber} is maximum user allowed. Wait for others exit the chat.`);
-            socket.close();
+            user.room.socketClose();
             return;
         }
-        createAdminMessage(`Your id is ${userId} and "You" will be used in this page instead | https://www.webfx.com/tools/emoji-cheat-sheet`);
+        console.log(user);
+
+        // let user = new User(userId);
+        // user.connectToRoom(room);
+
+        createAdminMessage(`Your id is ${user.getUserId()} and "You" will be used in this page instead | https://www.webfx.com/tools/emoji-cheat-sheet`);
         document.getElementById('chat_date').innerHTML = dateFormat(messageFromnser.room_date);
         open = true;
 
     } else {
+        console.log('userelse');
+        console.log(user);
         let fromServer = event.data;
         const msgFromServer = JSON.parse(fromServer);
 
         const authorOfMessage = msgFromServer.from;
 
-        if (fromServer.includes(`!exclude ${userId}`)) {
-            socket.close();
+        if (fromServer.includes(`!exclude ${user.getUserId()}`)) {
+            user.room.socketClose();
             return;
         }
 
         let direction = "incomming";
 
-        if (authorOfMessage === userId || authorOfMessage === userName) {
+        if (authorOfMessage === user.getUserId() || authorOfMessage === userName) {
             direction = "outgoing";
         }
 
@@ -247,17 +296,19 @@ socket.onmessage = function (event) {
         }
 
     }
-};
+});
 
-socket.onclose = function (event) {
+user.room.socketOnClose(function (event) {
     const closeMessage = event.data === undefined ? "Server, You or another user closed the connection." : "WebSocket is closed now.";
     createAdminMessage(closeMessage);
-};
+});
 
 function createSocket() {
     let client = new HttpClient();
     client.post('http://localhost:8000/create-ws', function(response) {
-
+        const clean = JSON.parse(response);
+        user.connectToRoom(response.value)
+        // const socket2 = new Room("ws://127.0.0.1:7777/ws");
 
     });
 }
